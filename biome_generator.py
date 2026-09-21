@@ -42,8 +42,7 @@ with open("saves/testWorld/humidity/0_0.txt", "w") as file:
     for x in range(64):
         for y in range(64):
             if [x, y] in tiles.values():
-                file.write("a")
+                file.write("0")
             file.write(";")
         if x != 63:
             file.write("\n")
-            
