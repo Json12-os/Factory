@@ -27,8 +27,8 @@ def render():
     canvas.delete("del")
     index = 0
     pointers = {}
-    for j in range(-1, math.floor(Cheight/tileSize)+1):
-        for i in range(-1, math.floor(Cwidth/tileSize)+1):
+    for j in range(0, math.floor(Cheight/tileSize)+2):
+        for i in range(0, math.floor(Cwidth/tileSize)+2):
             pointers[index] = (i, j)
             try:
                 humidity = getTileDataHumidity(j+math.floor(playerX/tileSize)
@@ -38,12 +38,12 @@ def render():
             except:
                 humidity = 17
             c = "#"+ str(hex(255-humidity).replace("0x", "")) + str(hex(255-humidity).replace("0x", "")) + str(hex(humidity).replace("0x", ""))
-            canvas.create_rectangle((0 + (i)*tileSize + playerX%tileSize,0 + j*tileSize+ playerY%tileSize), (tileSize+i*tileSize+ playerX%tileSize, tileSize+j*tileSize+ playerY%tileSize), tags=["index", "del"], 
+            canvas.create_rectangle((0 + (i)*tileSize - playerY%tileSize,0 + j*tileSize- playerX%tileSize), (tileSize+i*tileSize- playerY%tileSize, tileSize+j*tileSize- playerX%tileSize), tags=["index", "del"], 
                                     fill= c,
                                     outline=c
                                     )
             
-            #canvas.create_text((0 + (i)*tileSize + tileSize//2+ playerX%tileSize,0 + j*tileSize+tileSize//2+ playerY%tileSize),  tags=["index", "del"], text=f"{index}")
+            canvas.create_text((0 + (i)*tileSize + tileSize//2- playerY%tileSize,0 + j*tileSize+tileSize//2- playerX%tileSize),  tags=["index", "del"], text=f"{index}")
             index += 1
     
     ...
@@ -51,23 +51,24 @@ def render():
 import keyboard
 def forv():
     global playerX
-    playerX +=1
+    playerX -=1
 def back():
     global playerX
-    playerX -=1
+    playerX +=1
 keyboard.add_hotkey("w", forv)
 keyboard.add_hotkey("s", back)
 def rig():
     global playerY
-    playerY +=1
+    playerY -=1
 def lef():
     global playerY
-    playerY -=1
+    playerY +=1
 keyboard.add_hotkey("a", rig)
 keyboard.add_hotkey("d", lef)
 
-
+import time
 while True:
+    playerY +=1
     render()
-    
+    #time.sleep(5)
     root.update()
