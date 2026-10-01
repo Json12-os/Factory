@@ -20,16 +20,28 @@ def getTileDataHumidity(Yirl, Xirl):
     val = lineL[Xirl%regioSize]
     return int(val)
     ...
-
-
+tiles = []
+pointers = {}
+def chngeTileSize():
+    global tiles, pointers
+    index = 0
+    for j in range(0, math.floor(Cheight/tileSize)+2):
+        tiles.append([])
+        for i in range(0, math.floor(Cwidth/tileSize)+2):
+            tiles[j].append([])
+            pointers[index] = (i, j)
+            tiles[j][i] = [
+            canvas.create_rectangle((0 + (i)*tileSize - playerY%tileSize,0 + j*tileSize- playerX%tileSize), (tileSize+i*tileSize- playerY%tileSize, tileSize+j*tileSize- playerX%tileSize), tags=["index", "del"])          
+            ,canvas.create_text((0 + (i)*tileSize + tileSize//2- playerY%tileSize,0 + j*tileSize+tileSize//2- playerX%tileSize),  tags=["index", "del"], text=f"{index}")
+            ,index]
+            index += 1
+    pass
 
 def render():
-    canvas.delete("del")
-    index = 0
-    pointers = {}
     for j in range(0, math.floor(Cheight/tileSize)+2):
         for i in range(0, math.floor(Cwidth/tileSize)+2):
-            pointers[index] = (i, j)
+            canvas.coords(tiles[j][i][0], 0 + (i)*tileSize - playerY%tileSize,0 + j*tileSize- playerX%tileSize, tileSize+i*tileSize- playerY%tileSize, tileSize+j*tileSize- playerX%tileSize)
+            canvas.coords(tiles[j][i][1], (0 + (i)*tileSize + tileSize//2- playerY%tileSize,0 + j*tileSize+tileSize//2- playerX%tileSize))
             try:
                 humidity = getTileDataHumidity(j+math.floor(playerX/tileSize)
                                                ,
@@ -37,15 +49,16 @@ def render():
                                                 )
             except:
                 humidity = 17
+
             c = "#"+ str(hex(255-humidity).replace("0x", "")) + str(hex(255-humidity).replace("0x", "")) + str(hex(humidity).replace("0x", ""))
-            canvas.create_rectangle((0 + (i)*tileSize - playerY%tileSize,0 + j*tileSize- playerX%tileSize), (tileSize+i*tileSize- playerY%tileSize, tileSize+j*tileSize- playerX%tileSize), tags=["index", "del"], 
+            canvas.itemconfig(tiles[j][i][0], fill=c)
+            """canvas.create_rectangle((0 + (i)*tileSize - playerY%tileSize,0 + j*tileSize- playerX%tileSize), (tileSize+i*tileSize- playerY%tileSize, tileSize+j*tileSize- playerX%tileSize), tags=["index", "del"], 
                                     fill= c,
                                     outline=c
                                     )
             
             canvas.create_text((0 + (i)*tileSize + tileSize//2- playerY%tileSize,0 + j*tileSize+tileSize//2- playerX%tileSize),  tags=["index", "del"], text=f"{index}")
-            index += 1
-    
+            """
     ...
     
 import keyboard
@@ -65,7 +78,7 @@ def lef():
     playerY +=1
 keyboard.add_hotkey("a", rig)
 keyboard.add_hotkey("d", lef)
-
+chngeTileSize()
 import time
 while True:
     playerY +=1
