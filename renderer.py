@@ -3,7 +3,7 @@ root = tkinter.Tk()
 Cwidth = 1024
 Cheight = 800
 regioSize = 64
-tileSize = 40
+tileSize = 20
 from spolocneVariables import playerX, playerY, saveName
 root.geometry(f"{Cwidth}x{Cheight}")
 canvas = tkinter.Canvas(root, width=Cwidth, height=Cheight)
@@ -30,7 +30,8 @@ def chngeTileSize():
             pointers[index] = (i, j)
             tiles[j][i] = [
             canvas.create_rectangle((0 + (i)*tileSize - playerY%tileSize,0 + j*tileSize- playerX%tileSize), (tileSize+i*tileSize- playerY%tileSize, tileSize+j*tileSize- playerX%tileSize), tags=["index", "del"])          
-            ,canvas.create_text((0 + (i)*tileSize + tileSize//2- playerY%tileSize,0 + j*tileSize+tileSize//2- playerX%tileSize),  tags=["index", "del"], text=f"{index}")
+            #,canvas.create_text((0 + (i)*tileSize + tileSize//2- playerY%tileSize,0 + j*tileSize+tileSize//2- playerX%tileSize),  tags=["index", "del"], text=f"{index}")
+            ,""
             ,index]
             index += 1
     pass
