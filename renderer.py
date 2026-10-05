@@ -3,10 +3,8 @@ root = tkinter.Tk()
 Cwidth = 1024
 Cheight = 800
 regioSize = 64
-saveName = "testWorld"
 tileSize = 40
-playerX = 25
-playerY = 0
+from main import playerX, playerY, saveName
 root.geometry(f"{Cwidth}x{Cheight}")
 canvas = tkinter.Canvas(root, width=Cwidth, height=Cheight)
 canvas.pack()
@@ -52,36 +50,12 @@ def render():
 
             c = "#"+ str(hex(255-humidity).replace("0x", "")) + str(hex(255-humidity).replace("0x", "")) + str(hex(humidity).replace("0x", ""))
             canvas.itemconfig(tiles[j][i][0], fill=c)
-            """canvas.create_rectangle((0 + (i)*tileSize - playerY%tileSize,0 + j*tileSize- playerX%tileSize), (tileSize+i*tileSize- playerY%tileSize, tileSize+j*tileSize- playerX%tileSize), tags=["index", "del"], 
-                                    fill= c,
-                                    outline=c
-                                    )
             
-            canvas.create_text((0 + (i)*tileSize + tileSize//2- playerY%tileSize,0 + j*tileSize+tileSize//2- playerX%tileSize),  tags=["index", "del"], text=f"{index}")
-            """
-    ...
+
     
-import keyboard
-def forv():
-    global playerX
-    playerX -=1
-def back():
-    global playerX
-    playerX +=1
-keyboard.add_hotkey("w", forv)
-keyboard.add_hotkey("s", back)
-def rig():
-    global playerY
-    playerY -=1
-def lef():
-    global playerY
-    playerY +=1
-keyboard.add_hotkey("a", rig)
-keyboard.add_hotkey("d", lef)
+
 chngeTileSize()
 import time
 while True:
-    playerY +=1
     render()
-    #time.sleep(5)
     root.update()
