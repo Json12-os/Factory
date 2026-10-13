@@ -2,13 +2,31 @@ import random
 
 SEED = "a5dD5e156AS"
 
-MIN_RADIUS = 5
-MAX_RADIUS = 20
-CHANCES = [0.99 - 0.0099 * i for i in range(MAX_RADIUS)]
+MIN_RADIUS = 10
+MAX_RADIUS = 100
+CHANCES = [0.99 - 0.0099 * i for i in range(MAX_RADIUS - MIN_RADIUS)]
 
-def generate_biome(biome: str, spawn: list[int]) -> dict[int, list[int]]:
-    tiles = {0: spawn}
+def tiles_to_map(tiles: list[tuple[int, int]], start_pos: tuple[int, int] = (0, 0), end_pos: tuple[int, int] = (63, 63)) -> dict[int, dict[int, bool]]:
+    if end_pos[0] < start_pos[0]:
+        temp = end_pos[0]
+        end_pos = (start_pos[0], end_pos[1])
+        start_pos = (temp, start_pos[1])
+    if end_pos[1] < start_pos[1]:
+        temp = end_pos[1]
+        end_pos = (end_pos[0], start_pos[1])
+        start_pos = (start_pos[0], temp)
+
+    map = {x: {y: False for y in range(start_pos[0], end_pos[0] + 1)} for x in range(start_pos[1], end_pos[1] + 1)}
+
+    for item in range(len(tiles)):
+        tile = tiles[item]
+        map[tile[0]][tile[1]] = True
+    return map
+
+def legacy_generate_shape(spawn: tuple[int, int]) -> list[tuple[int, int]]:
+    tiles = [spawn]
     tiles_to_iterate = {0: True}
+    INSERT_OFFSET = ((1, 0), (-1, 0), (0, 1), (0, -1))
     while True in set(tiles_to_iterate.values()):
         for index in range(len(tiles)):
             tile = tiles[index]
@@ -18,46 +36,76 @@ def generate_biome(biome: str, spawn: list[int]) -> dict[int, list[int]]:
                     tiles_to_iterate[index] = False
                     continue
                 if distance > MIN_RADIUS:
-                    if random.random() > CHANCES[int(distance) - 6]:
+                    if random.random() > CHANCES[int(distance) - (MIN_RADIUS + 1)]:
                         tiles_to_iterate[index] = False
                         continue
-                if [tile[0] + 1, tile[1]] not in tiles.values():
-                    tiles[len(tiles)] = [tile[0] + 1, tile[1]]
-                    tiles_to_iterate[len(tiles_to_iterate)] = True
-                if [tile[0] - 1, tile[1]] not in tiles.values():
-                    tiles[len(tiles)] = [tile[0] - 1, tile[1]]
-                    tiles_to_iterate[len(tiles_to_iterate)] = True
-                if [tile[0], tile[1] + 1] not in tiles.values():
-                    tiles[len(tiles)] = [tile[0], tile[1] + 1]
-                    tiles_to_iterate[len(tiles_to_iterate)] = True
-                if [tile[0], tile[1] - 1] not in tiles.values():
-                    tiles[len(tiles)] = [tile[0], tile[1] - 1]
-                    tiles_to_iterate[len(tiles_to_iterate)] = True
+                for x, y in INSERT_OFFSET:
+                    new_tile = (tile[0] + x, tile[1] + y)
+                    if new_tile not in set(tiles):
+                        tiles.append(new_tile)
+                        tiles_to_iterate[len(tiles_to_iterate)] = True
                 tiles_to_iterate[index] = False
     return tiles
 
-def fix_biome_shape(tiles: dict[int, list[int]]) -> dict[int, list[int]]:
+def generate_shape(spawn: tuple[int, int]) -> list[tuple[int, int]]:
+    tiles = [spawn]
+    iterate_map = tiles_to_map(tiles)
+    tiles_to_iterate = {0: True}
+    INSERT_OFFSET = ((1, 0), (-1, 0), (0, 1), (0, -1))
+    while True in set(tiles_to_iterate.values()):
+        for index in range(len(tiles)):
+            tile = tiles[index]
+            if tiles_to_iterate[index]:
+                distance = (abs(tile[0] - tiles[0][0]) ** 2 + abs(tile[1] - tiles[0][1]) ** 2) ** 1/2
+                if MAX_RADIUS < distance:
+                    tiles_to_iterate[index] = False
+                    iterate_map[tile[0]][tile[1]] = False
+                    continue
+                if distance > MIN_RADIUS:
+                    if random.random() > CHANCES[int(distance) - (MIN_RADIUS + 1)]:
+                        tiles_to_iterate[index] = False
+                        iterate_map[tile[0]][tile[1]] = False
+                        for x in range(tile[0] - 1, tile[0] + 2):
+                            for y in range(tile[1] - 1, tile[1] + 2):
+                                if 0 <= tile[0] + x < 64 and 0 <= tile[1] + y < 64:
+                                    iterate_map[tile[0] + x][tile[1] + y] = False
+                                    if (tile[0] + x, tile[1] + y) in tiles_to_iterate.values():
+                                        tiles_to_iterate[tuple(tiles_to_iterate.values()).index((tile[0] + x, tile[1] + y))] = False
+                        continue
+                for x, y in INSERT_OFFSET:
+                    new_tile = (tile[0] + x, tile[1] + y)
+                    if new_tile not in tiles:
+                        tiles.append(new_tile)
+                        iterate_map[new_tile[0]][new_tile[1]] = True
+                        tiles_to_iterate[len(tiles_to_iterate)] = True
+                tiles_to_iterate[index] = False
+    return tiles
+
+def fix_shape(tiles: list[tuple[int, int]], iteration_count: int = 1) -> list[tuple[int, int]]:
     new_tiles = tiles.copy()
-    for tile in tiles.values():
-        if [tile[0] - 1, tile[1] + 1] in tiles.values():
-            if [tile[0] + 1, tile[1] + 1] in tiles.values():
-                if [tile[0] + 1, tile[1] - 1] in tiles.values():
-                    if [tile[0] - 1, tile[1] - 1] in tiles.values():
-                        if [tile[0] + 1, tile[1]] not in new_tiles.values():
-                            new_tiles[len(new_tiles)] = [tile[0] + 1, tile[1]]
-                        if [tile[0] - 1, tile[1]] not in new_tiles.values():
-                            new_tiles[len(new_tiles)] = [tile[0] - 1, tile[1]]
-                        if [tile[0], tile[1] + 1] not in new_tiles.values():
-                            new_tiles[len(new_tiles)] = [tile[0], tile[1] + 1]
-                        if [tile[0], tile[1] - 1] not in new_tiles.values():
-                            new_tiles[len(new_tiles)] = [tile[0], tile[1] - 1]
+    vals = set(new_tiles)
+
+    CHECKS_OFFSET = ((-1, 1), (1, 1), (1, -1), (-1, -1))
+    INSERT_OFFSET = ((1, 0), (-1, 0), (0, 1), (0, -1), (0, 0))
+    for _ in range(iteration_count):
+        new_vals = set(new_tiles)
+        added = False
+        for tile in new_vals:
+            if all((tile[0] + x, tile[1] + y) in new_vals for x, y in CHECKS_OFFSET):
+                for x, y in INSERT_OFFSET:
+                    if (tile[0] + x, tile[1] + y) not in vals:
+                        new_tiles.append((tile[0] + x, tile[1] + y))
+                        vals.add((tile[0] + x, tile[1] + y))
+                        added = True
+        if not added:
+            break
     return new_tiles
 
 with open("saves/testWorld/humidity/0_0.txt", "w") as file:
-    tiles = fix_biome_shape(generate_biome("null", [31, 31]))
+    tiles = fix_shape(generate_shape((31, 31)))
     for x in range(64):
         for y in range(64):
-            if [x, y] in tiles.values():
+            if (x, y) in tiles:
                 file.write("150")
             file.write(";")
         if x != 63:
