@@ -6,5 +6,6 @@ import spolocneVariables
 
 
 import renderer
-while True:
-    renderer.rendering()
+
+renderer.rendering()
+renderer.root.mainloop()

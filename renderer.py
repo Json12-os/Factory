@@ -1,4 +1,4 @@
-import tkinter, math
+import tkinter, math, time
 root = tkinter.Tk()
 Cwidth = 1024
 Cheight = 800
@@ -51,7 +51,6 @@ def render():
 
             c = "#"+ str(hex(255-humidity).replace("0x", "")) + str(hex(255-humidity).replace("0x", "")) + str(hex(humidity).replace("0x", ""))
             canvas.itemconfig(tiles[j][i][0], fill=c)
-            
 
 def forv():
     global playerX
@@ -78,4 +77,4 @@ chngeTileSize()
 import time
 def rendering():
     render()
-    root.update()
+    root.after(16, rendering)
