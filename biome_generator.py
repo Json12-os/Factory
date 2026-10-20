@@ -1,10 +1,29 @@
 import random
+from hashlib import sha256
+from typing import TypedDict, cast
+
+class shapeData(TypedDict):
+    min_radius: int
+    max_radius: int
+    chances: list[float]
+
+def sha256_seed(seed: str) -> int:
+    return int.from_bytes(sha256(seed.encode("utf-8")).digest(), "big")
+def get_randomness(seed:str) -> random.Random:
+    return random.Random(sha256_seed(seed))
 
 SEED = "a5dD5e156AS"
-
 MIN_RADIUS = 10
 MAX_RADIUS = 100
 CHANCES = [0.99 - 0.0099 * i for i in range(MAX_RADIUS - MIN_RADIUS)]
+
+def shape_data_to_list(data: dict[str, int | list[float]]) -> shapeData:
+    return {
+        "min_radius": int(cast(int, data["min_radius"])),
+        "max_radius": int(cast(int, data["max_radius"])),
+        "chances": [float(chance) for chance in cast(list[float], data["chances"])],
+    }
+
 
 def tiles_to_map(tiles: list[tuple[int, int]], start_pos: tuple[int, int] = (0, 0), end_pos: tuple[int, int] = (63, 63)) -> dict[int, dict[int, bool]]:
     if end_pos[0] < start_pos[0]:
@@ -23,7 +42,8 @@ def tiles_to_map(tiles: list[tuple[int, int]], start_pos: tuple[int, int] = (0, 
         map[tile[0]][tile[1]] = True
     return map
 
-def legacy_generate_shape(spawn: tuple[int, int]) -> list[tuple[int, int]]:
+def legacy_generate_shape(spawn: tuple[int, int], seed: str, shape_data: tuple[int, int, list[float]]) -> list[tuple[int, int]]:
+    randomness = get_randomness(seed)
     tiles = [spawn]
     tiles_to_iterate = {0: True}
     INSERT_OFFSET = ((1, 0), (-1, 0), (0, 1), (0, -1))
@@ -32,11 +52,11 @@ def legacy_generate_shape(spawn: tuple[int, int]) -> list[tuple[int, int]]:
             tile = tiles[index]
             if tiles_to_iterate[index]:
                 distance = (abs(tile[0] - tiles[0][0]) ** 2 + abs(tile[1] - tiles[0][1]) ** 2) ** 1/2
-                if MAX_RADIUS < distance:
+                if shape_data[1] < distance:
                     tiles_to_iterate[index] = False
                     continue
-                if distance > MIN_RADIUS:
-                    if random.random() > CHANCES[int(distance) - (MIN_RADIUS + 1)]:
+                if distance > shape_data[0]:
+                    if randomness.random() > shape_data[2][int(distance) - (shape_data[0] + 1)]:
                         tiles_to_iterate[index] = False
                         continue
                 for x, y in INSERT_OFFSET:
@@ -47,7 +67,8 @@ def legacy_generate_shape(spawn: tuple[int, int]) -> list[tuple[int, int]]:
                 tiles_to_iterate[index] = False
     return tiles
 
-def generate_shape(spawn: tuple[int, int]) -> list[tuple[int, int]]:
+def generate_shape(spawn: tuple[int, int], seed: str, shape_data: tuple[int, int, list[float]]) -> list[tuple[int, int]]:
+    randomness = get_randomness(seed)
     tiles = [spawn]
     iterate_map = tiles_to_map(tiles)
     tiles_to_iterate = {0: True}
@@ -57,12 +78,12 @@ def generate_shape(spawn: tuple[int, int]) -> list[tuple[int, int]]:
             tile = tiles[index]
             if tiles_to_iterate[index]:
                 distance = (abs(tile[0] - tiles[0][0]) ** 2 + abs(tile[1] - tiles[0][1]) ** 2) ** 1/2
-                if MAX_RADIUS < distance:
+                if shape_data[1] < distance:
                     tiles_to_iterate[index] = False
                     iterate_map[tile[0]][tile[1]] = False
                     continue
-                if distance > MIN_RADIUS:
-                    if random.random() > CHANCES[int(distance) - (MIN_RADIUS + 1)]:
+                if distance > shape_data[0]:
+                    if randomness.random() > shape_data[2][int(distance) - (shape_data[0] + 1)]:
                         tiles_to_iterate[index] = False
                         iterate_map[tile[0]][tile[1]] = False
                         for x in range(tile[0] - 1, tile[0] + 2):
@@ -101,8 +122,10 @@ def fix_shape(tiles: list[tuple[int, int]], iteration_count: int = 1) -> list[tu
             break
     return new_tiles
 
-with open("saves/testWorld/humidity/0_0.txt", "w") as file:
-    tiles = fix_shape(generate_shape((31, 31)))
+WORLD_NAME = "testWorld"
+
+with open(f"saves/{WORLD_NAME}/world/0_0.txt", "w") as file:
+    tiles = fix_shape(generate_shape((31, 31), "a5dD5e156AS", (10, 100, [0.99 - 0.0099 * i for i in range(90)])))
     for x in range(64):
         for y in range(64):
             if (x, y) in tiles:
