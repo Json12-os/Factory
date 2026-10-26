@@ -121,15 +121,3 @@ def fix_shape(tiles: list[tuple[int, int]], iteration_count: int = 1) -> list[tu
         if not added:
             break
     return new_tiles
-
-WORLD_NAME = "testWorld"
-
-with open(f"saves/{WORLD_NAME}/world/0_0.txt", "w") as file:
-    tiles = fix_shape(generate_shape((31, 31), "a5dD5e156AS", (10, 100, [0.99 - 0.0099 * i for i in range(90)])))
-    for x in range(64):
-        for y in range(64):
-            if (x, y) in tiles:
-                file.write("150")
-            file.write(";")
-        if x != 63:
-            file.write("\n")
