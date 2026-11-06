@@ -29,5 +29,5 @@ with open(f"saves/{WORLD_NAME}/world/0_0.txt", "w") as file:
                 #file.write(biome_data["map_id"])
                 file.write("150")
             file.write(";")
-        if x != 511:
+        if x != 63:
             file.write("\n")
