@@ -11,7 +11,7 @@ canvas.pack()
 
 pointers = {}
 def getTileDataHumidity(Yirl, Xirl):
-    file = open(f"saves/{saveName}/humidity/{math.floor(Xirl/regioSize)}_{math.floor(Yirl/regioSize)}.txt", "r")
+    file = open(f"saves\{saveName}\humidity\{math.floor(Xirl/regioSize)}_{math.floor(Yirl/regioSize)}.txt", "r")
     lines = file.readlines()
     line = lines[Yirl%regioSize].strip("\n")
     lineL = line.split(";")
