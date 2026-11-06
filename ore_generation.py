@@ -4,7 +4,7 @@ import math, random
 
 SAVEFile={}
 
-def generateOre(type, size, richness, x, y, add):
+def generateOre(type, size, richness, x, y, add=6.6):
     for xreal in range(x-100, x+101):
         for yreal in range(y-100, y+101):
             t = type
@@ -58,5 +58,5 @@ def SAVE():
                     File.write(str(SAVEFile[x][y][xx][yy]["Type"]) + " "+ str(SAVEFile[x][y][xx][yy]["Quantity"]) + ";")
                 File.write("\n")
             File.close()
-generateOre("Iron", 0.03, 33.6, 0, 0, 6.6)
+generateOre("Iron", 0.03, 33.6, 0, 0)
 SAVE()
