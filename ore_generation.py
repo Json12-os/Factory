@@ -52,7 +52,7 @@ def loadRegio(x, y):
 def SAVE():
     for x in SAVEFile.keys():
         for y in SAVEFile[x].keys():
-            File = open(f"saves\{save}\{x}_{y}.txt", "w")
+            File = open(f"saves\{save}\ores\{x}_{y}.txt", "w")
             for xx in SAVEFile[x][y].keys():
                 for yy in SAVEFile[x][y][xx].keys():
                     File.write(str(SAVEFile[x][y][xx][yy]["Type"]) + " "+ str(SAVEFile[x][y][xx][yy]["Quantity"]) + ";")
