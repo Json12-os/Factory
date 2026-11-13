@@ -1,0 +1,9 @@
+{
+    "display_name": "Ocean",
+    "system_name": "ocean",
+    "map_id": "003",
+    "min_radius": 30,
+    "max_radius": 200,
+    "chances_type": "linear",
+    "color": "#2379CF"
+}
