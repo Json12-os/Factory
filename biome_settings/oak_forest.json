@@ -4,5 +4,6 @@
     "map_id": "002",
     "min_radius": 30,
     "max_radius": 200,
-    "chances_type": "arctan"
+    "chances_type": "linear",
+    "color": "#087024"
 }
