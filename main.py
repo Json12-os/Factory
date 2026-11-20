@@ -5,7 +5,7 @@ import spolocneVariables
 
 
 import ore_generation
-import renderer
+import rendererOld
 
-renderer.rendering()
-renderer.root.mainloop()
+rendererOld.rendering()
+rendererOld.root.mainloop()
