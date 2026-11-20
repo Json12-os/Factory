@@ -58,5 +58,5 @@ def SAVE():
                     File.write(str(SAVEFile[x][y][xx][yy]["Type"]) + " "+ str(SAVEFile[x][y][xx][yy]["Quantity"]) + ";")
                 File.write("\n")
             File.close()
-generateOre("Iron", 0.03, 33.6, 0, 0)
-SAVE()
+#generateOre("Iron", 0.03, 33.6, 0, 0)
+#SAVE()
